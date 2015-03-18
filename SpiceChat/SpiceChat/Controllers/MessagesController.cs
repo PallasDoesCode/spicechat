@@ -20,6 +20,15 @@ namespace SpiceChat.Controllers
         // GET: api/Messages
         public IQueryable<Message> GetMessages()
         {
+            var message = from b in db.Messages
+                          select new MessageDTO()
+                          {
+                              Id = b.Id,
+                              Body = b.Body,
+                              CreatedAt = b.CreatedAt,
+                              ConversationID = b.ConversationID,
+                              CreatedBy = b.CreatedBy
+                          };
             return db.Messages;
         }
 
