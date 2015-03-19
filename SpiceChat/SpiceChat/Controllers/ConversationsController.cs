@@ -26,7 +26,6 @@ namespace SpiceChat.Controllers
                                     Id = b.Id,
                                     CreatedAt = b.CreatedAt,
                                     CreatedBy = b.CreatedBy
-
                                 };
 
             return conversations;
