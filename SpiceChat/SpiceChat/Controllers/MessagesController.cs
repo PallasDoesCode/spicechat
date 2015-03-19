@@ -18,9 +18,9 @@ namespace SpiceChat.Controllers
         private SpiceChatContext db = new SpiceChatContext();
 
         // GET: api/Messages
-        public IQueryable<Message> GetMessages()
+        public IQueryable<MessageDTO> GetMessages()
         {
-            var message = from b in db.Messages
+            var messages = from b in db.Messages
                           select new MessageDTO()
                           {
                               Id = b.Id,
@@ -29,14 +29,27 @@ namespace SpiceChat.Controllers
                               ConversationID = b.ConversationID,
                               CreatedBy = b.CreatedBy
                           };
-            return db.Messages;
+
+            return messages;
         }
 
         // GET: api/Messages/5
-        [ResponseType(typeof(Message))]
+        [ResponseType(typeof(MessageDetailDTO))]
         public async Task<IHttpActionResult> GetMessage(int id)
         {
-            Message message = await db.Messages.FindAsync(id);
+            var message = await db.Messages.Select(b =>
+                new MessageDetailDTO()
+                {
+                    Id = b.Id,
+                    Body = b.Body,
+                    CreatedAt = b.CreatedAt,
+                    AttachmentLocation = b.AttachmentLocation,
+                    AttachmentContentType = b.AttachmentContentType,
+                    AttachmentName = b.AttachmentName,
+                    ConversationID = b.ConversationID,
+                    CreatedBy = b.CreatedBy
+                }).SingleOrDefaultAsync(b => b.Id == id);
+
             if (message == null)
             {
                 return NotFound();
@@ -92,7 +105,16 @@ namespace SpiceChat.Controllers
             db.Messages.Add(message);
             await db.SaveChangesAsync();
 
-            return CreatedAtRoute("DefaultApi", new { id = message.Id }, message);
+            var dto = new MessageDTO()
+            {
+                Id = message.Id,
+                Body = message.Body,
+                CreatedAt = message.CreatedAt,
+                ConversationID = message.ConversationID,
+                CreatedBy = message.CreatedBy
+            };
+
+            return CreatedAtRoute("DefaultApi", new { id = message.Id }, dto);
         }
 
         // DELETE: api/Messages/5

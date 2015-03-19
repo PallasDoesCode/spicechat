@@ -33,7 +33,7 @@ namespace SpiceChat.Controllers
         }
 
         // GET: api/Conversations/5
-        [ResponseType(typeof(ConversationDTO))]
+        [ResponseType(typeof(ConversationDetailDTO))]
         public async Task<IHttpActionResult> GetConversation(int id)
         {
             var conversation = await db.Conversations.Select(b =>

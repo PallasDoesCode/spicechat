@@ -18,16 +18,36 @@ namespace SpiceChat.Controllers
         private SpiceChatContext db = new SpiceChatContext();
 
         // GET: api/Users
-        public IQueryable<User> GetUsers()
+        public IQueryable<UserDTO> GetUsers()
         {
-            return db.Users;
+            var users = from b in db.Users
+                        select new UserDTO()
+                        {
+                            Id = b.Id,
+                            UserID = b.UserID,
+                            FirstName = b.FirstName,
+                            LastName = b.LastName,
+                            Role = b.Role
+                        };
+
+            return users;
         }
 
         // GET: api/Users/5
-        [ResponseType(typeof(User))]
+        [ResponseType(typeof(UserDetailDTO))]
         public async Task<IHttpActionResult> GetUser(int id)
         {
-            User user = await db.Users.FindAsync(id);
+            var user = await db.Users.Select(b =>
+                new UserDetailDTO()
+                {
+                    Id = b.Id,
+                    UserID = b.UserID,
+                    FirstName = b.FirstName,
+                    LastName = b.LastName,
+                    DisplayName = b.DisplayName,
+                    Role = b.Role
+                }).SingleOrDefaultAsync(b => b.Id == id);
+
             if (user == null)
             {
                 return NotFound();
@@ -83,7 +103,16 @@ namespace SpiceChat.Controllers
             db.Users.Add(user);
             await db.SaveChangesAsync();
 
-            return CreatedAtRoute("DefaultApi", new { id = user.Id }, user);
+            var dto = new UserDTO()
+            {
+                Id = user.Id,
+                UserID = user.UserID,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Role = user.Role
+            };
+
+            return CreatedAtRoute("DefaultApi", new { id = user.Id }, dto);
         }
 
         // DELETE: api/Users/5
